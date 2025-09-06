@@ -1,6 +1,7 @@
 import React, { useState, useEffect, createContext, useContext } from "react";
 import { User } from "@/types";
 import { mockUsers } from "@/lib/mock-data";
+import api from "@/lib/api";
 
 interface AuthContextType {
   user: User | null;
@@ -36,38 +37,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    // Mock authentication
-    const foundUser = mockUsers.find(u => u.email === email);
-    
-    if (foundUser && (password === "DemoUser123!" || password === "Seller123!")) {
-      setUser(foundUser);
-      localStorage.setItem("ecofinds_user", JSON.stringify(foundUser));
-      return true;
+    try {
+      console.log("Attempting login with", email)
+      const res = await api.post("/api/auth/login", { email, password });
+      if (res.data.accessToken) {
+        localStorage.setItem("accessToken", res.data.accessToken);
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
     }
-    
-    return false;
   };
 
-  const register = async (email: string, password: string, username: string): Promise<boolean> => {
-    // Mock registration
-    const existingUser = mockUsers.find(u => u.email === email);
-    if (existingUser) {
-      return false; // User already exists
+  const register = async (email: string, password: string, username: string) => {
+    try {
+      const res = await api.post("/api/auth/register", { email, password, username });
+      return res.status === 201;
+    } catch (error: any) {
+      return false;
     }
-
-    const newUser: User = {
-      id: `user-${Date.now()}`,
-      email,
-      username,
-      avatarUrl: `/api/placeholder/100/100?text=${username.slice(0, 2).toUpperCase()}`,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-
-    mockUsers.push(newUser);
-    setUser(newUser);
-    localStorage.setItem("ecofinds_user", JSON.stringify(newUser));
-    return true;
   };
 
   const logout = () => {

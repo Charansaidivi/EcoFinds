@@ -1,10 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const helmet = require('helmet');
 const routes = require('./routes');
-const { errorHandler } = require('./middleware');
 const connectDB = require('./config/db');
-const config = require('./config');
+require('dotenv').config();
 
 const app = express();
 
@@ -12,15 +12,28 @@ const app = express();
 connectDB();
 
 // Middleware
-app.use(cors());
+app.use(helmet());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// CORS configuration
+const corsOptions = {
+  origin: 'http://localhost:8080', // your frontend port
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 
 // Routes
 app.use('/api', routes);
 
-// Error handling middleware
-app.use(errorHandler);
+// Error handling middleware (optional)
+// app.use(errorHandler);
 
-// Export the app
+// Start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`EcoFinds backend running on port ${PORT}`);
+});
+
 module.exports = app;
