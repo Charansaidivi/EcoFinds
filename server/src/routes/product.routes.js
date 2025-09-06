@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth.middleware');
-const upload = require('../middleware/imageUpload');
+const localUpload = require('../middleware/localUpload');
 const productController = require('../controllers/product.controller');
 
-router.post('/', auth, upload.single('image'), productController.createProduct);
+router.post('/', auth, localUpload.single('image'), productController.createProduct);
 
 module.exports = router;

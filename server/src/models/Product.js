@@ -16,7 +16,7 @@ const productSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ['Electronics', 'Fashion', 'Home', 'Books', 'Sports', 'Other'] // add categories as needed
+    enum: ['Electronics', 'Fashion', 'Home', 'Books', 'Sports', 'Other', 'Furniture'] // Added "Furniture"
   },
   price: {
     type: Number,
@@ -24,7 +24,7 @@ const productSchema = new mongoose.Schema({
     min: 0
   },
   image: {
-    type: String, // URL or placeholder
+    type: String,
     default: 'placeholder.svg'
   },
   location: {
@@ -34,7 +34,7 @@ const productSchema = new mongoose.Schema({
       default: 'Point'
     },
     coordinates: {
-      type: [Number], // [longitude, latitude]
+      type: [Number],
       required: true
     }
   },
