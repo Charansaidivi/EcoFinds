@@ -16,6 +16,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Header } from "@/components/common/Header";
 import { Footer } from "@/components/common/Footer";
 import { useAuth } from "@/hooks/useAuth";
+import api from "@/lib/api";
 import { CATEGORIES, PLACEHOLDER_IMAGES } from "@/lib/constants";
 import { mockProducts } from "@/lib/mock-data";
 import { Product, Category } from "@/types";
@@ -25,12 +26,14 @@ const NewListing = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [location, setLocation] = useState<{ longitude: number; latitude: number } | null>(null);
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     category: "" as Category | "",
     price: "",
-    imageUrl: ""
+    image: null as File | null,
   });
 
   if (!user) {
@@ -51,49 +54,67 @@ const NewListing = () => {
     );
   }
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value, files } = e.target as any;
+    setFormData(prev => ({
+      ...prev,
+      [name]: files ? files[0] : value,
+    }));
+  };
+
+  const handleGetLocation = () => {
+    if (!navigator.geolocation) {
+      toast({
+        title: "Geolocation not supported",
+        description: "Your browser does not support location capture.",
+        variant: "destructive",
+      });
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLocation({
+          longitude: pos.coords.longitude,
+          latitude: pos.coords.latitude,
+        });
+        toast({
+          title: "Location captured!",
+          description: "Your live location has been added.",
+        });
+      },
+      () => {
+        toast({
+          title: "Location error",
+          description: "Unable to capture your location.",
+          variant: "destructive",
+        });
+      }
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Validation
-    if (!formData.title.trim() || !formData.description.trim() || !formData.category || !formData.price) {
-      toast({
-        title: "Missing fields",
-        description: "Please fill in all required fields.",
-        variant: "destructive",
-      });
-      setIsLoading(false);
-      return;
+    const data = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      if (value) data.append(key, value as any);
+    });
+    if (location) {
+      data.append("longitude", String(location.longitude));
+      data.append("latitude", String(location.latitude));
     }
 
-    const price = parseFloat(formData.price);
-    if (isNaN(price) || price < 0) {
-      toast({
-        title: "Invalid price",
-        description: "Please enter a valid price.",
-        variant: "destructive",
-      });
-      setIsLoading(false);
-      return;
-    }
+    // Get access token from localStorage
+    const accessToken = localStorage.getItem("accessToken");
 
     try {
-      // Create new product
-      const newProduct: Product = {
-        id: `product-${Date.now()}`,
-        ownerId: user.id,
-        ownerUsername: user.username,
-        title: formData.title.trim(),
-        description: formData.description.trim(),
-        category: formData.category,
-        price,
-        imageUrl: formData.imageUrl || getDefaultImageForCategory(formData.category),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-
-      // Add to mock data (in a real app, this would be an API call)
-      mockProducts.unshift(newProduct);
+      await api.post("/api/products", data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
 
       toast({
         title: "Listing created!",
@@ -120,15 +141,13 @@ const NewListing = () => {
   const handleCategoryChange = (category: Category) => {
     setFormData(prev => ({
       ...prev,
-      category,
-      imageUrl: prev.imageUrl || getDefaultImageForCategory(category)
+      category
     }));
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
-      
       <main className="flex-1">
         {/* Breadcrumb */}
         <div className="border-b border-border">
@@ -159,9 +178,10 @@ const NewListing = () => {
                     <Label htmlFor="title">Title *</Label>
                     <Input
                       id="title"
+                      name="title"
                       placeholder="What are you selling?"
                       value={formData.title}
-                      onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                      onChange={handleChange}
                       disabled={isLoading}
                       required
                     />
@@ -172,9 +192,10 @@ const NewListing = () => {
                     <Label htmlFor="description">Description *</Label>
                     <Textarea
                       id="description"
+                      name="description"
                       placeholder="Describe your item's condition, features, and why someone should buy it..."
                       value={formData.description}
-                      onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                      onChange={handleChange}
                       disabled={isLoading}
                       required
                       rows={4}
@@ -212,10 +233,11 @@ const NewListing = () => {
                         <DollarSign className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
                           id="price"
+                          name="price"
                           type="number"
                           placeholder="0.00"
                           value={formData.price}
-                          onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
+                          onChange={handleChange}
                           disabled={isLoading}
                           required
                           min="0"
@@ -226,32 +248,46 @@ const NewListing = () => {
                     </div>
                   </div>
 
+                  {/* Location Capture */}
+                  <div className="space-y-2">
+                    <Label>Location *</Label>
+                    <Button type="button" onClick={handleGetLocation} disabled={!!location || isLoading}>
+                      {location ? "Location Captured" : "Capture Live Location"}
+                    </Button>
+                    {location && (
+                      <div className="text-sm text-muted-foreground">
+                        Longitude: {location.longitude}, Latitude: {location.latitude}
+                      </div>
+                    )}
+                  </div>
+
                   {/* Image */}
                   <div className="space-y-2">
-                    <Label htmlFor="imageUrl">Image URL (Optional)</Label>
-                    <div className="space-y-2">
-                      <Input
-                        id="imageUrl"
-                        placeholder="Enter image URL or leave blank for default"
-                        value={formData.imageUrl}
-                        onChange={(e) => setFormData(prev => ({ ...prev, imageUrl: e.target.value }))}
-                        disabled={isLoading}
-                      />
-                      {formData.category && (
-                        <div className="p-3 bg-muted rounded-lg text-sm text-muted-foreground">
-                          💡 Leave blank to use a default {formData.category.toLowerCase()} placeholder image
-                        </div>
-                      )}
-                    </div>
+                    <Label htmlFor="image">Image *</Label>
+                    <Input
+                      id="image"
+                      name="image"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleChange}
+                      disabled={isLoading}
+                      required
+                    />
                   </div>
 
                   {/* Preview */}
-                  {(formData.imageUrl || formData.category) && (
+                  {(formData.image || formData.category) && (
                     <div className="space-y-2">
                       <Label>Preview</Label>
                       <div className="border border-border rounded-lg p-4">
                         <img
-                          src={formData.imageUrl || (formData.category ? getDefaultImageForCategory(formData.category) : '')}
+                          src={
+                            formData.image
+                              ? URL.createObjectURL(formData.image as File)
+                              : formData.category
+                                ? getDefaultImageForCategory(formData.category)
+                                : ''
+                          }
                           alt="Preview"
                           className="w-full h-48 object-cover rounded-lg"
                         />

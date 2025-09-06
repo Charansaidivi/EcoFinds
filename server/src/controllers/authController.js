@@ -39,6 +39,8 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log("Login attempt with", email);
+    
     if (!email || !password)
       return res.status(400).json({ message: 'Email and password required.' });
 
@@ -49,7 +51,6 @@ exports.login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
       return res.status(401).json({ message: 'Invalid credentials.' });
-
     // Generate tokens
     console.log("Generating tokens");
     console.log(process.env.MONGO_URI)
@@ -58,7 +59,7 @@ exports.login = async (req, res) => {
     const accessToken = jwt.sign(
       { userId: user._id, email: user.email },
       process.env.JWT_SECRET,
-      { expiresIn: '15m' }
+      { expiresIn: '1d' }
     );
     const refreshToken = jwt.sign(
       { userId: user._id },
@@ -78,7 +79,17 @@ exports.login = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return res.json({ accessToken });
+    return res.json({
+      accessToken,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        listedProducts: user.listedProducts,
+        orderedProducts: user.orderedProducts,
+        cartedProducts: user.cartedProducts
+      }
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Server error.' });

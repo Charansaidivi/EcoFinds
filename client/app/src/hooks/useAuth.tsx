@@ -28,7 +28,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing session
     const savedUser = localStorage.getItem("ecofinds_user");
     if (savedUser) {
       setUser(JSON.parse(savedUser));
@@ -40,8 +39,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       console.log("Attempting login with", email)
       const res = await api.post("/api/auth/login", { email, password });
-      if (res.data.accessToken) {
+      if (res.data.accessToken && res.data.user) {
         localStorage.setItem("accessToken", res.data.accessToken);
+        localStorage.setItem("ecofinds_user", JSON.stringify(res.data.user));
+        setUser(res.data.user); // <-- update user state here
         return true;
       }
       return false;
