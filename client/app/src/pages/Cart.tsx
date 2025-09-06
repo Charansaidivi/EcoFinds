@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Header } from "@/components/common/Header";
-import { Footer } from "@/components/common/Footer";
+import Footer from "@/components/common/Footer";
 import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
 import { mockOrders } from "@/lib/mock-data";

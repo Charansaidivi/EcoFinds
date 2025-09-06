@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Plus, Edit, Trash2, Eye, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,18 +16,36 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Header } from "@/components/common/Header";
-import { Footer } from "@/components/common/Footer";
+import Footer from "@/components/common/Footer";
 import { useAuth } from "@/hooks/useAuth";
-import { mockProducts } from "@/lib/mock-data";
+import api from "@/lib/api";
 import { Product } from "@/types";
 import { toast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 
 const MyListings = () => {
   const { user } = useAuth();
-  const [products, setProducts] = useState<Product[]>(
-    mockProducts.filter(p => p.ownerId === user?.id)
-  );
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchListings = async () => {
+      try {
+        const accessToken = localStorage.getItem("accessToken");
+        const res = await api.get("/api/products/my", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        setProducts(res.data);
+      } catch {
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (user) fetchListings();
+  }, [user]);
 
   if (!user) {
     return (
@@ -47,20 +65,26 @@ const MyListings = () => {
     );
   }
 
-  const handleDelete = (productId: string) => {
-    // In a real app, this would be an API call
-    setProducts(prev => prev.filter(p => p.id !== productId));
-    
-    // Remove from mock data as well
-    const index = mockProducts.findIndex(p => p.id === productId);
-    if (index > -1) {
-      mockProducts.splice(index, 1);
+  const handleDelete = async (productId: string) => {
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+      await api.delete(`/api/products/${productId}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      setProducts(prev => prev.filter(p => p._id !== productId));
+      toast({
+        title: "Listing deleted",
+        description: "Your listing has been successfully deleted.",
+      });
+    } catch {
+      toast({
+        title: "Delete failed",
+        description: "Could not delete the listing. Please try again.",
+        variant: "destructive",
+      });
     }
-
-    toast({
-      title: "Listing deleted",
-      description: "Your listing has been successfully deleted.",
-    });
   };
 
   if (products.length === 0) {
@@ -111,12 +135,13 @@ const MyListings = () => {
             {/* Products Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {products.map((product) => (
-                <Card key={product.id} className="overflow-hidden hover:shadow-md transition-shadow">
+                <Card key={product._id} className="overflow-hidden hover:shadow-md transition-shadow">
                   <div className="aspect-[4/3] relative">
                     <img
-                      src={product.imageUrl}
+                      src={product.image}
                       alt={product.title}
-                      className="h-full w-full object-cover"
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      loading="lazy"
                     />
                     <div className="absolute top-3 left-3">
                       <Badge className="category-chip">
@@ -148,17 +173,17 @@ const MyListings = () => {
                       {/* Actions */}
                       <div className="flex space-x-2">
                         <Button variant="outline" size="sm" className="flex-1" asChild>
-                          <Link to={`/listings/${product.id}`}>
+                          <Link to={`/listings/${product._id}`}>
                             <Eye className="h-4 w-4 mr-2" />
                             View
                           </Link>
                         </Button>
-                        
-                        <Button variant="outline" size="sm" className="flex-1">
-                          <Edit className="h-4 w-4 mr-2" />
-                          Edit
+                        <Button variant="outline" size="sm" className="flex-1" asChild>
+                          <Link to={`/listings/${product._id}/edit`}>
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit
+                          </Link>
                         </Button>
-                        
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
@@ -175,7 +200,7 @@ const MyListings = () => {
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
                               <AlertDialogAction 
-                                onClick={() => handleDelete(product.id)}
+                                onClick={() => handleDelete(product._id)}
                                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                               >
                                 Delete

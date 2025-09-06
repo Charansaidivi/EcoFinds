@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from "react";
-import { Filter, Grid, List } from "lucide-react";
+import React, { useState, useMemo, useEffect } from "react";
+import { Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -9,12 +9,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Header } from "@/components/common/Header";
-import { Footer } from "@/components/common/Footer";
-import { ProductCard } from "@/components/common/ProductCard";
+import Header from "@/components/common/Header";
+import Footer from "@/components/common/Footer";
+import {ProductCard} from "@/components/common/ProductCard";
 import { ProductGridSkeleton } from "@/components/common/LoadingSkeleton";
 import { CATEGORIES, SORT_OPTIONS, SortOption } from "@/lib/constants";
-import { mockProducts } from "@/lib/mock-data";
+import api from "@/lib/api";
 import { Product, Category } from "@/types";
 
 const Index = () => {
@@ -22,25 +22,46 @@ const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category | "All">("All");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [isLoading, setIsLoading] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
 
-  // Filter and sort products
+  useEffect(() => {
+    setIsLoading(true);
+    api.get("/api/products")
+      .then((res) => {
+        const mapped = res.data.map((p: any) => ({
+          id: p._id,
+          ownerId: p.owner?._id || p.owner,
+          ownerUsername: p.owner?.username || "",
+          title: p.title,
+          description: p.description,
+          category: p.category,
+          price: p.price,
+          imageUrl:
+            p.image && !p.image.startsWith("http")
+              ? `${import.meta.env.VITE_API_URL}/${p.image.replace(/\\/g, "/")}`
+              : p.image,
+          createdAt: p.createdAt,
+          updatedAt: p.updatedAt || p.createdAt,
+        }));
+        setProducts(mapped);
+      })
+      .catch(() => setProducts([]))
+      .finally(() => setIsLoading(false));
+  }, []);
+
   const filteredProducts = useMemo(() => {
-    let filtered = [...mockProducts];
-
-    // Filter by search query
+    let filtered = [...products];
     if (searchQuery.trim()) {
       filtered = filtered.filter(product =>
         product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.description.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-
-    // Filter by category
     if (selectedCategory !== "All") {
-      filtered = filtered.filter(product => product.category === selectedCategory);
+      filtered = filtered.filter(product =>
+        product.category.trim().toLowerCase() === selectedCategory.trim().toLowerCase()
+      );
     }
-
-    // Sort products
     switch (sortBy) {
       case "price_low":
         filtered.sort((a, b) => a.price - b.price);
@@ -53,9 +74,8 @@ const Index = () => {
         filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         break;
     }
-
     return filtered;
-  }, [searchQuery, selectedCategory, sortBy]);
+  }, [products, searchQuery, selectedCategory, sortBy]);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -64,7 +84,6 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header onSearch={handleSearch} searchQuery={searchQuery} />
-      
       <main className="flex-1">
         {/* Hero Section */}
         <section className="bg-gradient-hero text-primary-foreground py-16">
@@ -113,7 +132,7 @@ const Index = () => {
                 ))}
               </div>
 
-              {/* Sort and View Options */}
+              {/* Sort Options */}
               <div className="flex items-center gap-4">
                 <Select value={sortBy} onValueChange={(value: SortOption) => setSortBy(value)}>
                   <SelectTrigger className="w-48">
@@ -142,7 +161,7 @@ const Index = () => {
                   {searchQuery ? `Search results for "${searchQuery}"` : "Latest Products"}
                 </h2>
                 <p className="text-muted-foreground">
-                  {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''} found
+                  {filteredProducts.length} product{filteredProducts.length !== 1 ? "s" : ""} found
                 </p>
               </div>
             </div>
@@ -183,7 +202,6 @@ const Index = () => {
           </div>
         </section>
       </main>
-      
       <Footer />
     </div>
   );

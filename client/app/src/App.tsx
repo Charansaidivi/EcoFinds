@@ -11,7 +11,8 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import MyListings from "./pages/MyListings";
 import NewListing from "./pages/NewListing";
-import ProductDetail from "./pages/ProductDetail";
+import ProductDetail from "@/pages/ProductDetail";
+import EditListing from "@/pages/EditListing"; // Create this page if it doesn't exist
 import Cart from "./pages/Cart";
 import Purchases from "./pages/Purchases";
 import NotFound from "./pages/NotFound";
@@ -34,6 +35,7 @@ const App = () => (
               <Route path="/my-listings" element={<MyListings />} />
               <Route path="/listings/new" element={<NewListing />} />
               <Route path="/listings/:id" element={<ProductDetail />} />
+              <Route path="/listings/:id/edit" element={<EditListing />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/purchases" element={<Purchases />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

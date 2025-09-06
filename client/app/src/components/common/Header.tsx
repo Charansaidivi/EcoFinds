@@ -160,3 +160,5 @@ export function Header({ onSearch, searchQuery = "" }: HeaderProps) {
     </header>
   );
 }
+
+export default Header;

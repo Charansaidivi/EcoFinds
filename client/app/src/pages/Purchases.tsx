@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Header } from "@/components/common/Header";
-import { Footer } from "@/components/common/Footer";
+import Footer from "@/components/common/Footer";
 import { useAuth } from "@/hooks/useAuth";
 import { mockOrders } from "@/lib/mock-data";
 import { formatDistanceToNow, format } from "date-fns";

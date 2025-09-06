@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Header } from "@/components/common/Header";
-import { Footer } from "@/components/common/Footer";
+import Footer  from "@/components/common/Footer";
 import { ProductCard } from "@/components/common/ProductCard";
 import { ProductDetailSkeleton } from "@/components/common/LoadingSkeleton";
 import { mockProducts } from "@/lib/mock-data";

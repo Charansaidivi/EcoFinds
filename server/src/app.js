@@ -24,6 +24,9 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+// Serve uploads directory for images
+app.use('/uploads', express.static('uploads'));
+
 // Routes
 app.use('/api', routes);
 

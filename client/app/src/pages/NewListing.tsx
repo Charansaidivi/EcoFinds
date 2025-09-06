@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Header } from "@/components/common/Header";
-import { Footer } from "@/components/common/Footer";
+import Footer  from "@/components/common/Footer";
 import { useAuth } from "@/hooks/useAuth";
 import api from "@/lib/api";
 import { CATEGORIES, PLACEHOLDER_IMAGES } from "@/lib/constants";

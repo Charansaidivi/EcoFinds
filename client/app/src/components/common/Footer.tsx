@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Heart, Leaf } from "lucide-react";
 
-export function Footer() {
+function Footer() {
   return (
     <footer className="border-t border-border bg-muted/50 mt-auto">
       <div className="container mx-auto px-4 py-8">
@@ -82,15 +82,12 @@ export function Footer() {
 
         <div className="border-t border-border mt-8 pt-6 flex flex-col sm:flex-row justify-between items-center">
           <p className="text-sm text-muted-foreground">
-            © 2024 EcoFinds. Built with sustainability in mind.
+            © 2025 EcoFinds. Built with sustainability in mind.
           </p>
-          <div className="flex items-center space-x-1 text-sm text-muted-foreground mt-4 sm:mt-0">
-            <span>Made with</span>
-            <Heart className="h-4 w-4 text-destructive fill-current" />
-            <span>for the planet</span>
-          </div>
         </div>
       </div>
     </footer>
   );
 }
+
+export default Footer;

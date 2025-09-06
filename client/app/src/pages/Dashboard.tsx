@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Edit, Save, Package, ShoppingCart, User, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,19 +8,42 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Header } from "@/components/common/Header";
-import { Footer } from "@/components/common/Footer";
+import Footer from "@/components/common/Footer";
 import { useAuth } from "@/hooks/useAuth";
 import { mockProducts, mockOrders } from "@/lib/mock-data";
 import { toast } from "@/hooks/use-toast";
+import api from "@/lib/api";
 
 const Dashboard = () => {
-  const { user, updateProfile } = useAuth();
+  const { user, setUser } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     username: user?.username || "",
     email: user?.email || ""
   });
+
+  // Fetch user profile and stats
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const accessToken = localStorage.getItem("accessToken");
+      const res = await api.get("/api/users/me", {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      console.log("Fetched user profile:", res.data);
+      // console.log("User ID:", res.data.listedCount);
+      setUser({
+        ...res.data,
+        _id: res.data.id,
+      });
+      console.log("API user data:", res.data);
+    };
+    fetchProfile();
+  }, [setUser]);
+
+  useEffect(() => {
+    console.log("Updated user state:", user);
+  }, [user]);
 
   if (!user) {
     return (
@@ -83,30 +106,30 @@ const Dashboard = () => {
     });
     setIsEditing(false);
   };
+ const stats = [
+  {
+    title: "Active Listings",
+    value: Array.isArray(user.listedCount) ? user.listedCount.length : 2,
+    icon: Package,
+    color: "text-primary",
+    href: "/my-listings",
+  },
+  {
+    title: "Total Orders",
+    value: Array.isArray(user.purchasedCount) ? user.purchasedCount.length : 0,
+    icon: ShoppingCart,
+    color: "text-accent",
+    href: "/purchases",
+  },
+  {
+    title: "Total Earned",
+    value: `$${user.totalEarned ?? 20}`,
+    icon: Eye,
+    color: "text-success",
+    href: "/my-listings",
+  },
+];
 
-  const stats = [
-    {
-      title: "Active Listings",
-      value: userProducts.length,
-      icon: Package,
-      color: "text-primary",
-      href: "/my-listings"
-    },
-    {
-      title: "Total Orders",
-      value: userOrders.length,
-      icon: ShoppingCart,
-      color: "text-accent",
-      href: "/purchases"
-    },
-    {
-      title: "Total Earned",
-      value: `$${userProducts.reduce((sum, p) => sum + p.price, 0).toLocaleString()}`,
-      icon: Eye,
-      color: "text-success",
-      href: "/my-listings"
-    }
-  ];
 
   return (
     <div className="min-h-screen flex flex-col bg-background">

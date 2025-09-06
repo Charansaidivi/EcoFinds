@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { Home, Search, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/common/Header";
-import { Footer } from "@/components/common/Footer";
+import  Footer  from "@/components/common/Footer";
 
 const NotFound = () => {
   const location = useLocation();
