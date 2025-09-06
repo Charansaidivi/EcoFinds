@@ -1,0 +1,241 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* EcoFinds Design System - Eco-friendly marketplace theme */
+
+@layer base {
+  :root {
+    /* Background & Surface Colors */
+    --background: 240 10% 98%;
+    --foreground: 220 65% 8%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 220 65% 8%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 65% 8%;
+    
+    /* Brand Colors - Eco Green Palette */
+    --primary: 142 76% 36%;        /* #16A34A - Primary Green */
+    --primary-foreground: 0 0% 98%;
+    --primary-light: 142 71% 45%;   /* #22C55E - Light Green */
+    
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 65% 8%;
+    
+    --accent: 199 89% 48%;          /* #0EA5E9 - Accent Blue */
+    --accent-foreground: 0 0% 98%;
+    
+    /* Neutral Grays */
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+    
+    --neutral-dark: 220 65% 12%;    /* #111827 */
+    --neutral-medium: 220 9% 46%;   /* #6B7280 */
+    --neutral-light: 220 14% 98%;   /* #F9FAFB */
+    
+    /* UI States */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 98%;
+    
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 98%;
+    
+    /* Borders & Inputs */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 142 76% 36%;
+    
+    /* Design System Tokens */
+    --radius: 1rem;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-light)));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--muted)) 100%);
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(var(--primary) / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(var(--primary) / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(var(--primary) / 0.1);
+    --shadow-glow: 0 0 0 1px hsl(var(--primary) / 0.05), 0 1px 3px 0 hsl(var(--primary) / 0.1);
+    
+    /* Animations */
+    --transition-all: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-colors: color 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
+                        background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                        border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Sidebar (if needed) */
+    --sidebar-background: hsl(var(--card));
+    --sidebar-foreground: hsl(var(--foreground));
+    --sidebar-primary: hsl(var(--primary));
+    --sidebar-primary-foreground: hsl(var(--primary-foreground));
+    --sidebar-accent: hsl(var(--muted));
+    --sidebar-accent-foreground: hsl(var(--foreground));
+    --sidebar-border: hsl(var(--border));
+    --sidebar-ring: hsl(var(--ring));
+  }
+
+  .dark {
+    --background: 220 65% 4%;
+    --foreground: 220 14% 98%;
+    
+    --card: 220 50% 6%;
+    --card-foreground: 220 14% 98%;
+    
+    --popover: 220 50% 6%;
+    --popover-foreground: 220 14% 98%;
+    
+    --primary: 142 71% 45%;
+    --primary-foreground: 220 65% 4%;
+    --primary-light: 142 76% 50%;
+    
+    --secondary: 220 50% 12%;
+    --secondary-foreground: 220 14% 98%;
+    
+    --accent: 199 89% 48%;
+    --accent-foreground: 220 65% 4%;
+    
+    --muted: 220 50% 12%;
+    --muted-foreground: 220 14% 70%;
+    
+    --neutral-dark: 220 14% 98%;
+    --neutral-medium: 220 14% 70%;
+    --neutral-light: 220 50% 6%;
+    
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 220 14% 98%;
+    
+    --warning: 38 92% 50%;
+    --warning-foreground: 220 65% 4%;
+    
+    --success: 142 71% 45%;
+    --success-foreground: 220 65% 4%;
+    
+    --border: 220 50% 15%;
+    --input: 220 50% 15%;
+    --ring: 142 71% 45%;
+    
+    --sidebar-background: 220 50% 6%;
+    --sidebar-foreground: 220 14% 98%;
+    --sidebar-primary: 142 71% 45%;
+    --sidebar-primary-foreground: 220 65% 4%;
+    --sidebar-accent: 220 50% 12%;
+    --sidebar-accent-foreground: 220 14% 98%;
+    --sidebar-border: 220 50% 15%;
+    --sidebar-ring: 142 71% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+  
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Focus styles */
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary;
+  }
+}
+
+@layer components {
+  /* Hero Button Variant */
+  .btn-hero {
+    @apply bg-gradient-to-r from-primary to-accent text-primary-foreground 
+           shadow-lg hover:shadow-xl hover:scale-105 
+           transition-all duration-300 ease-out
+           font-semibold px-8 py-3 rounded-2xl;
+  }
+  
+  /* Product Card */
+  .product-card {
+    @apply bg-card border border-border rounded-2xl overflow-hidden
+           shadow-sm hover:shadow-md transition-all duration-300
+           hover:scale-[1.02] hover:-translate-y-1;
+  }
+  
+  /* Category Chip */
+  .category-chip {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm
+           bg-primary/10 text-primary border border-primary/20
+           hover:bg-primary/20 transition-colors duration-200;
+  }
+  
+  /* Shimmer Animation */
+  .shimmer {
+    @apply animate-pulse bg-gradient-to-r from-muted via-muted/50 to-muted bg-[length:200%_100%];
+    animation: shimmer 1.5s infinite;
+  }
+  
+  /* Glass Effect */
+  .glass {
+    @apply bg-background/80 backdrop-blur-md border border-border/50;
+  }
+}
+
+@layer utilities {
+  /* Custom animations */
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  .animate-fade-up {
+    animation: fade-up 0.3s ease-out;
+  }
+  
+  .animate-scale-in {
+    animation: scale-in 0.2s ease-out;
+  }
+  
+  /* Text utilities */
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
+  }
+  
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
