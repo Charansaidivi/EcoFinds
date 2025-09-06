@@ -18,7 +18,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // CORS configuration
 const corsOptions = {
-  origin: 'http://localhost:8080', // your frontend port
+  origin: 'https://ecofinds-jg7f.onrender.com', // your frontend port
   credentials: true,
 };
 
