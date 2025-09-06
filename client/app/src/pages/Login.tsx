@@ -74,16 +74,6 @@ const Login = () => {
           </p>
         </div>
 
-        {/* Demo Credentials Alert */}
-        <Alert className="mb-6 border-primary/20 bg-primary/5">
-          <Leaf className="h-4 w-4 text-primary" />
-          <AlertDescription className="text-sm">
-            <strong>Demo Credentials:</strong><br />
-            Email: demo@ecofinds.com | Password: DemoUser123!<br />
-            Email: seller@ecofinds.com | Password: Seller123!
-          </AlertDescription>
-        </Alert>
-
         {/* Login Form */}
         <Card className="animate-scale-in">
           <CardHeader>

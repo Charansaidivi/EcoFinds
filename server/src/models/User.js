@@ -28,7 +28,19 @@ const userSchema = new mongoose.Schema({
   refreshToken: {
     type: String,
     default: null,
-  }
+  },
+  listedProducts: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Product'
+  }],
+  orderedProducts: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Product'
+  }],
+  cartedProducts: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Product'
+  }],
 });
 
 module.exports = mongoose.model('User', userSchema);
