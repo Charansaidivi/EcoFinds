@@ -18,7 +18,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // CORS configuration
 const corsOptions = {
-  origin: 'https://ecofinds-jg7f.onrender.com', // your frontend port
+  origin: 'https://eco-finds-self.vercel.app/', // your frontend port
   credentials: true,
 };
 
